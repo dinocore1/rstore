@@ -1,4 +1,15 @@
 plugins {
     id 'cpp-application'
+    id 'cpp-unit-test'
+}
+
+repositories {
+    maven {
+        url 'https://repo.gradle.org/gradle/libs-snapshots-local/'
+    }
+}
+
+dependencies {
+    testImplementation 'org.gradle.cpp-samples:googletest:1.9.0-SNAPSHOT'
 }
 
