@@ -10,10 +10,11 @@ using namespace rstore;
 static void usage()
 {
     fprintf(stdout, "RStore \n");
-    fprintf(stdout, "Usage: rstore [CMD] [ARGS]\n\n");
+    fprintf(stdout, "Usage: rstore CMD [ARGS]\n\n");
     fprintf(stdout, "Commands:\n");
-    fprintf(stdout, "  init [path]\tinitialize rstore database in directory\n");
-    fprintf(stdout, "  ls [path]\tlist files under [path]\n");
+    fprintf(stdout, "  init\tinitialize rstore database in directory\n");
+    fprintf(stdout, "  ls\tlist files under [path]\n");
+    fprintf(stdout, "  push\tcopy data into into rstore\n");
 }
 
 static int init(int argc, char** argv)
@@ -41,13 +42,46 @@ static int init(int argc, char** argv)
     if(dir.exists()) {
         fprintf(stderr, "rstore dir already exists\n");
         return -1;
-    } else if(!dir.mkdir()) {
+    }
+    
+    if(!dir.mkdir()) {
         fprintf(stderr, "could not mkdir: %s\n", dir.path.c_str());
         return -1;
     }
 
-    printf("dir path: %s\n", dirpath);
+    File files_dir(dir, "files");
+    if(!files_dir.mkdir()) {
+        return -1;
+    }
+
+    File blocks_dir(dir, "blocks");
+    if(!blocks_dir.mkdir()) {
+        return -1;
+    }
+
     return 0;
+}
+
+static int push(int argc, char** argv)
+{
+    int c;
+    while((c = getopt(argc, argv, "h")) != -1) {
+        switch(c) {
+            case 'h':
+                fprintf(stdout, "push [-r] SRC_PATH DEST_PATH\n");
+                fprintf(stdout, "  copy data from SRC_PATH into the rstore and saves it to DEST_PATH.\n");
+                return -1;
+        }
+    }
+
+    File src_file(argv[optind]);
+    if(!src_file.exists()) {
+        fprintf(stderr, "file does not exist: %s\n", src_file.path.c_str());
+        return -1;
+    }
+
+    char buf[4096];
+    FPStat fp(::fopen(src_file.path.c_str(), "rb"));
 }
 
 int main(int argc, char** argv) {

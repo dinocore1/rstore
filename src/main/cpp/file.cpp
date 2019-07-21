@@ -32,4 +32,39 @@ bool File::exists()
     return stat(path.c_str(), &sb) == 0;
 }
 
+bool File::isFile()
+{
+   struct stat sb;
+   stat(path.c_str(), &sb) == 0 &&
+   sb.st_mode & S_IFMT == S_IFREG; 
+}
+
+bool File::isDirectory()
+{
+   struct stat sb;
+   stat(path.c_str(), &sb) == 0 &&
+   sb.st_mode & S_IFMT == S_IFDIR;
+}
+
+FPStat::FPStat(FILE* fp)
+ : fp(fp)
+{}
+
+FPStat::~FPStat()
+{
+    close();
+}
+
+void FPStat::close()
+{
+    if(fp) {
+        ::fclose(fp);
+        fp = nullptr;
+    }
+}
+
+FPStat::operator FILE*() {
+    return fp;
+}
+
 } // namespace rstore

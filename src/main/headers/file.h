@@ -15,8 +15,22 @@ public:
 
     bool exists();
     bool mkdir();
+    bool isFile();
+    bool isDirectory();
 
     std::string path;
+};
+
+class FPStat {
+public:
+    FPStat(FILE* = nullptr);
+    ~FPStat();
+
+    void close();
+
+    operator FILE* ();
+private:
+    FILE* fp;
 };
 
 } // namespace rstore
