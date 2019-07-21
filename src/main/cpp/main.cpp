@@ -3,6 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "file.h"
+
+using namespace rstore;
+
 static void usage()
 {
     fprintf(stdout, "RStore \n");
@@ -31,6 +35,16 @@ static int init(int argc, char** argv)
     }
 
     dirpath = argv[optind];
+    File dir(dirpath);
+    dir = File(dir, ".rstore");
+
+    if(dir.exists()) {
+        fprintf(stderr, "rstore dir already exists\n");
+        return -1;
+    } else if(!dir.mkdir()) {
+        fprintf(stderr, "could not mkdir: %s\n", dir.path.c_str());
+        return -1;
+    }
 
     printf("dir path: %s\n", dirpath);
     return 0;
