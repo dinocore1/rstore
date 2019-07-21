@@ -29,6 +29,14 @@ uint32_t Adler32::remove(uint8_t out, uint16_t len)
     return hashvalue;
 }
 
+uint32_t Adler32::update(uint8_t in, uint8_t out, uint16_t len)
+{
+    a = (a + ADLER32BASE - out + in) % ADLER32BASE;
+    b = ((b - ADLER32BASE - 1) + (ADLER32BASE - len)*out + a) % ADLER32BASE;
+    hashvalue = (b << 16) | a;
+    return hashvalue;
+}
+
 void Adler32::reset()
 {
     a = 1;
