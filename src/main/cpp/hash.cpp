@@ -12,32 +12,28 @@ Adler32::Adler32()
     reset();
 }
 
-uint32_t Adler32::eat(uint8_t in)
+uint32_t Adler32::update(uint8_t in)
 {
-    uint16_t sum2 = (hashvalue >> 16) & 0xFFFF;
-    uint16_t sum1 = hashvalue & 0xFFFF;
+    a = (a + in) % ADLER32BASE;
+    b = (b + a) % ADLER32BASE;
 
-    sum1 = (sum1 + in) % ADLER32BASE;
-    sum2 = (sum2 + sum1) % ADLER32BASE;
-
-    hashvalue = (sum2 << 16) | sum1;
+    hashvalue = (b << 16) | a;
     return hashvalue;
 }
 
-uint32_t Adler32::update(uint8_t in, uint8_t out, uint16_t len)
+uint32_t Adler32::remove(uint8_t out, uint16_t len)
 {
-    uint16_t sum2 = (hashvalue >> 16) & 0xFFFF;
-    uint16_t sum1 = hashvalue & 0xFFFF;
-
-    sum1 = (sum1 - out + in) % ADLER32BASE;
-    sum2 = (sum2 - (len+1) * out + sum1) % ADLER32BASE;
-    hashvalue = (sum2 << 16) | sum1;
+    a = (a + ADLER32BASE - out) % ADLER32BASE;
+    b = ((b - ADLER32BASE - 1) + (ADLER32BASE - len)*out) % ADLER32BASE;
+    hashvalue = (b << 16) | a;
     return hashvalue;
 }
 
 void Adler32::reset()
 {
-    hashvalue = 1;
+    a = 1;
+    b = 0;
+    hashvalue = (b << 16) | a;
 }
 
     

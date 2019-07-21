@@ -28,11 +28,20 @@ class Adler32 {
 public:
     Adler32();
 
-    uint32_t eat(uint8_t in);
-    uint32_t update(uint8_t in, uint8_t out, uint16_t len);
+    /**
+     * Feed new data to hash.
+     */
+    uint32_t update(uint8_t in);
+
+    /**
+     * removes the given byte that was fed to the hash len bytes ago.
+     */
+    uint32_t remove(uint8_t out, uint16_t len);
+    //uint32_t update(uint8_t in, uint8_t out, uint16_t len);
     void reset();
 
 private:
+    uint32_t a, b;
     uint32_t hashvalue;
 
 };
