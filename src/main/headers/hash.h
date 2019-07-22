@@ -5,25 +5,6 @@
 namespace rstore
 {
 
-
-template<int N>
-class RollingHash {
-public:
-
-    void clear() {
-        head = 0;
-        tail = 0;
-        size = 0;
-    }
-
-private:
-    uint8_t window[N];
-    int head;
-    int tail;
-    int size;
-};
-
-
 class Adler32 {
 public:
     Adler32();
@@ -48,8 +29,58 @@ public:
 
 private:
     uint32_t a, b;
-    uint32_t hashvalue;
-
 };
-    
+
+template<int N>
+class RollingHash {
+public:
+
+    RollingHash()
+    {
+        clear();
+    }
+
+    void clear() {
+        head = 0;
+        tail = 0;
+        size = 0;
+    }
+
+protected:
+    uint8_t window[N];
+    int head;
+    int tail;
+    int size;
+};
+
+template<int N>
+class Adler32RollingHash : public RollingHash<N> {
+public:
+
+    uint32_t update(uint8_t in) {
+        uint32_t retval;
+
+        if(RollingHash<N>::size < N) {
+            RollingHash<N>::size++;
+            retval = hash.update(in);
+        } else {
+            retval = hash.update(in, RollingHash<N>::window[RollingHash<N>::tail], N);
+            RollingHash<N>::tail = (RollingHash<N>::tail + 1) % N;
+        }
+
+        RollingHash<N>::window[RollingHash<N>::head] = in;
+        RollingHash<N>::head = (RollingHash<N>::head + 1) % N;
+
+        return retval;
+    }
+
+    void clear() {
+        RollingHash<N>::clear();
+        hash.reset();
+    }
+
+private:
+    Adler32 hash;
+};
+
 } // namespace rstore
