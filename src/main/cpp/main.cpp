@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "file.h"
+#include "hash.h"
 
 using namespace rstore;
 
@@ -62,8 +63,12 @@ static int init(int argc, char** argv)
     return 0;
 }
 
+#define BUF_SIZE 4096
+typedef Adler32RollingHash<16> rollinghash_t;
+
 static int push(int argc, char** argv)
 {
+    int err;
     int c;
     while((c = getopt(argc, argv, "h")) != -1) {
         switch(c) {
@@ -80,8 +85,18 @@ static int push(int argc, char** argv)
         return -1;
     }
 
-    char buf[4096];
+    char buf[BUF_SIZE];
+    rollinghash_t rolling;
+    uint32_t rolling_hash;
+
     FPStat fp(::fopen(src_file.path.c_str(), "rb"));
+    while( (err = ::fread(buf, 1, BUF_SIZE, fp)) > 0 ) {
+        rolling_hash = rolling.update(buf, 0, err);
+        if(rolling_hash < 100) {
+
+        }
+    }
+    return err;
 }
 
 int main(int argc, char** argv) {
