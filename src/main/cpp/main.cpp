@@ -4,8 +4,7 @@
 #include <unistd.h>
 
 #include "file.h"
-#include "hash.h"
-#include "sha256.h"
+#include "blockchunk.h"
 
 using namespace rstore;
 
@@ -65,7 +64,6 @@ static int init(int argc, char** argv)
 }
 
 #define BUF_SIZE 4096
-typedef Adler32RollingHash<16> rollinghash_t;
 
 static int push(int argc, char** argv)
 {
@@ -87,6 +85,8 @@ static int push(int argc, char** argv)
     }
 
     char buf[BUF_SIZE];
+    BlockChuncker chuncker;
+
     rollinghash_t rolling;
     uint32_t rolling_hash;
     SHA256 secure_hash;
@@ -105,9 +105,8 @@ static int push(int argc, char** argv)
             rolling_hash = rolling.update(buf[i]);
             secure_hash.update( (const uint8_t*) &buf[i] , 1);
             ::fwrite(&buf[i], 1, 1, fptmp);
-            if(rolling_hash < 0x800) {
+            if(rolling_hash < 0x5E0) {
                 fptmp.close();
-                
                 fptmp = ::fopen(tmp_file.path.c_str(), "wb");
                 rolling.clear();
                 secure_hash.init();
