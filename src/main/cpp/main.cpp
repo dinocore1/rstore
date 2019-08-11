@@ -5,6 +5,7 @@
 
 #include "file.h"
 #include "hash.h"
+#include "sha256.h"
 
 using namespace rstore;
 
@@ -88,12 +89,29 @@ static int push(int argc, char** argv)
     char buf[BUF_SIZE];
     rollinghash_t rolling;
     uint32_t rolling_hash;
+    SHA256 secure_hash;
+    secure_hash.init();
 
-    FPStat fp(::fopen(src_file.path.c_str(), "rb"));
-    while( (err = ::fread(buf, 1, BUF_SIZE, fp)) > 0 ) {
-        rolling_hash = rolling.update(buf, 0, err);
-        if(rolling_hash < 100) {
+    File dir(".");
+    dir = File(dir, ".rstore");
 
+    File tmp_file(dir, "tmp.dat");
+
+    FPStat fpsrc(::fopen(src_file.path.c_str(), "rb"));
+    FPStat fptmp(::fopen(tmp_file.path.c_str(), "wb"));
+    while( (err = ::fread(buf, 1, BUF_SIZE, fpsrc)) > 0 ) {
+
+        for(size_t i=0;i<err;i++){
+            rolling_hash = rolling.update(buf[i]);
+            secure_hash.update( (const uint8_t*) &buf[i] , 1);
+            ::fwrite(&buf[i], 1, 1, fptmp);
+            if(rolling_hash < 0x800) {
+                fptmp.close();
+                
+                fptmp = ::fopen(tmp_file.path.c_str(), "wb");
+                rolling.clear();
+                secure_hash.init();
+            }
         }
     }
     return err;
@@ -122,6 +140,8 @@ int main(int argc, char** argv) {
 
     if( strcmp(cmd, "init") == 0 ) {
         return init(argc-1, &argv[optind]);
+    } else if( strcmp(cmd, "push") == 0) {
+        return push(argc-1, &argv[optind]);
     }
 
     fprintf(stderr, "unknown command: %s\n", cmd);

@@ -5,6 +5,7 @@ namespace rstore
 {
 
 
+//larges prime < 2^16
 #define ADLER32BASE 65521
 
 Adler32::Adler32()

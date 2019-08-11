@@ -42,15 +42,13 @@ public:
     }
 
     void clear() {
-        head = 0;
-        tail = 0;
+        ptr = 0;
         size = 0;
     }
 
 protected:
     uint8_t window[N];
-    int head;
-    int tail;
+    int ptr;
     int size;
 };
 
@@ -65,12 +63,11 @@ public:
             RollingHash<N>::size++;
             retval = hash.update(in);
         } else {
-            retval = hash.update(in, RollingHash<N>::window[RollingHash<N>::tail], N);
-            RollingHash<N>::tail = (RollingHash<N>::tail + 1) % N;
+            retval = hash.update(in, RollingHash<N>::window[RollingHash<N>::ptr], N);
         }
 
-        RollingHash<N>::window[RollingHash<N>::head] = in;
-        RollingHash<N>::head = (RollingHash<N>::head + 1) % N;
+        RollingHash<N>::window[RollingHash<N>::ptr] = in;
+        RollingHash<N>::ptr = (RollingHash<N>::ptr + 1) % N;
 
         return retval;
     }

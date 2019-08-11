@@ -26,10 +26,13 @@ public:
     FPStat(FILE* = nullptr);
     ~FPStat();
 
+    FPStat& operator=(FILE*);
+
     void close();
 
     operator FILE* ();
 private:
+    FPStat(const FPStat&);
     FILE* fp;
 };
 

@@ -55,6 +55,13 @@ FPStat::~FPStat()
     close();
 }
 
+FPStat& FPStat::operator= (FILE* rhs)
+{
+    close();
+    fp = rhs;
+    return *this;
+}
+
 void FPStat::close()
 {
     if(fp) {
