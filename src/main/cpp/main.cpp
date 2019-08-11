@@ -87,10 +87,7 @@ static int push(int argc, char** argv)
     char buf[BUF_SIZE];
     BlockChuncker chuncker;
 
-    rollinghash_t rolling;
-    uint32_t rolling_hash;
-    SHA256 secure_hash;
-    secure_hash.init();
+    
 
     File dir(".");
     dir = File(dir, ".rstore");
@@ -99,20 +96,30 @@ static int push(int argc, char** argv)
 
     FPStat fpsrc(::fopen(src_file.path.c_str(), "rb"));
     FPStat fptmp(::fopen(tmp_file.path.c_str(), "wb"));
-    while( (err = ::fread(buf, 1, BUF_SIZE, fpsrc)) > 0 ) {
 
-        for(size_t i=0;i<err;i++){
-            rolling_hash = rolling.update(buf[i]);
-            secure_hash.update( (const uint8_t*) &buf[i] , 1);
-            ::fwrite(&buf[i], 1, 1, fptmp);
-            if(rolling_hash < 0x5E0) {
-                fptmp.close();
-                fptmp = ::fopen(tmp_file.path.c_str(), "wb");
-                rolling.clear();
-                secure_hash.init();
-            }
-        }
+    auto on_write = [&](void* buf, size_t len) {
+        ::fwrite(buf, 1, len, fptmp);
+    };
+
+    auto on_block_found = [&](const std::string& hash) {
+
+        File block_file(dir, "blocks");
+        block_file = File(block_file, hash);
+
+        fptmp.close();
+        rename(tmp_file.path.c_str(), block_file.path.c_str());
+
+        fptmp = ::fopen(tmp_file.path.c_str(), "wb");
+    };
+
+    chuncker.init(on_write, on_block_found);
+
+    while( (err = ::fread(buf, 1, BUF_SIZE, fpsrc)) > 0 ) {
+        chuncker.write(buf, err);
     }
+
+    chuncker.finish();
+
     return err;
 }
 
