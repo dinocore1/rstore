@@ -25,6 +25,10 @@
 #  include <stddef.h>
 #  include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* We should make this something other than zero to improve the checksum
    algorithm: tridge suggests a prime number. */
 #  define ROLLSUM_CHAR_OFFSET 31
@@ -70,5 +74,9 @@ static inline uint32_t RollsumDigest(Rollsum *sum)
 {
     return ((uint32_t)sum->s2 << 16) | ((uint32_t)sum->s1 & 0xffff);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif                          /* _ROLLSUM_H_ */
