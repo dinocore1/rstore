@@ -24,19 +24,23 @@ include gtest.mk
 include build.mk
 
 $(eval $(call new_module))
-LOCAL_MODULE := rstore
-LOCAL_SRC := \
-	src/rstore/src/rollsum.c
-LOCAL_INCLUDES :=
-LOCAL_HEADER_EXPORTS := src/rstore/headers
-$(eval $(call build_lib))
-
-$(eval $(call new_module))
 LOCAL_MODULE := rstore_test
-LOCAL_LIBRARIES := rstore
-LOCAL_SRC := src/rstore/test/test.cpp
+LOCAL_LIBRARIES := 
+LOCAL_INCLUDES := src/rstore/src
+LOCAL_SRC := \
+	src/rstore/src/rollsum.c \
+	src/rstore/test/test.cpp \
+
 $(eval $(call build_test))
 
+$(eval $(call new_module))
+LOCAL_MODULE := rstore
+LOCAL_INCLUDES := src/rstore/src
+LOCAL_SRC := \
+	src/rstore/src/rstore.cpp \
+	src/rstore/src/rollsum.c \
+
+$(eval $(call build_exe))
 
 test: $(TEST_LIST)
 	$(foreach exe,$(TEST_LIST),./$(exe))
