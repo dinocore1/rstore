@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include <iostream>
+#include <cstring>
 
 #define BUF_SIZE 4096
 #define ROLL_WINDOW 31
