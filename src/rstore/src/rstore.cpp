@@ -11,6 +11,7 @@
 #include <string>
 
 #define BUF_SIZE (1024 * 1024)
+#define MIN_BUF_SIZE 1024
 #define ROLL_WINDOW 31
 #define CRYPTO_SIZE 40
 
@@ -128,9 +129,7 @@ int main(int argc, char** argv)
         blake2b_update(&crypto_hash, &err, 1);
         chunk_buffer[size] = err;
         uint32_t checksum = RollsumDigest(&roll_hash);
-        if(checksum < 0x00004000 || size >= BUF_SIZE-1) {
-
-            
+        if( (checksum < 0x00004000 && size > MIN_BUF_SIZE) || size >= BUF_SIZE-1) {
 
             blake2b_final(&crypto_hash, crypto_sum, CRYPTO_SIZE);
             rs_hexify(crypto_hex, crypto_sum, CRYPTO_SIZE);
