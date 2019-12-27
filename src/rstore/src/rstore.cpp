@@ -134,9 +134,7 @@ int main(int argc, char** argv)
 
             blake2b_final(&crypto_hash, crypto_sum, CRYPTO_SIZE);
             rs_hexify(crypto_hex, crypto_sum, CRYPTO_SIZE);
-
             write_chunk(chunk_buffer, size, crypto_hex);
-
             printf("%s\n", crypto_hex);
 
 
@@ -148,7 +146,12 @@ int main(int argc, char** argv)
         size++;
     }
 
-    write_chunk(chunk_buffer, size, crypto_hex);
+    if(size > 0) {
+        blake2b_final(&crypto_hash, crypto_sum, CRYPTO_SIZE);
+        rs_hexify(crypto_hex, crypto_sum, CRYPTO_SIZE);
+        write_chunk(chunk_buffer, size, crypto_hex);
+        printf("%s\n", crypto_hex);
+    }
 
     return 0;
 }
