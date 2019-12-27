@@ -43,9 +43,13 @@ int write_chunk(uint8_t* buf, int buf_len, char* crypto_hash_hex)
 {
     int err;
     FILE* out;
+    struct stat fstat_buf;
     std::string dir;
     std::string filename;
-    dir = "data/";
+    std::string fullpath;
+    dir = "data";
+    err = mkdir(dir.c_str(), 0755);
+    dir += "/";
     dir += std::string(crypto_hash_hex, 2);
     err = mkdir(dir.c_str(), 0755);
     dir += "/";
@@ -53,12 +57,17 @@ int write_chunk(uint8_t* buf, int buf_len, char* crypto_hash_hex)
     err = mkdir(dir.c_str(), 0755);
     filename = std::string(crypto_hash_hex) + ".dat";
 
-    out = fopen( (dir + "/" + filename).c_str(), "wb");
-    err = fwrite(buf, buf_len, 1, out);
-    if(err != 1) {
-        printf("error writing chunk\n");
+    fullpath = dir + "/" + filename;
+
+    err = stat(fullpath.c_str(), &fstat_buf);
+    if(err != 0) {
+        out = fopen( fullpath.c_str(), "wb");
+        err = fwrite(buf, buf_len, 1, out);
+        if(err != 1) {
+            printf("error writing chunk\n");
+        }
+        fclose(out);
     }
-    fclose(out);
 
     return 0;
 }
@@ -123,7 +132,7 @@ int main(int argc, char** argv)
 
             write_chunk(chunk_buffer, size, crypto_hex);
 
-            printf("found chunk size: %d %08x %s\n", size, checksum, crypto_hex);
+            printf("%s\n", crypto_hex);
 
 
             RollsumInit(&roll_hash);
