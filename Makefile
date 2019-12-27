@@ -26,8 +26,12 @@ include build.mk
 $(eval $(call new_module))
 LOCAL_MODULE := rstore_test
 LOCAL_LIBRARIES := 
-LOCAL_INCLUDES := src/rstore/src
+LOCAL_INCLUDES := \
+	src/rstore/src \
+	src/rstore/src/blake2 \
+
 LOCAL_SRC := \
+	src/rstore/src/blake2/blake2b-ref.c \
 	src/rstore/src/rollsum.c \
 	src/rstore/test/test.cpp \
 
@@ -35,8 +39,12 @@ $(eval $(call build_test))
 
 $(eval $(call new_module))
 LOCAL_MODULE := rstore
-LOCAL_INCLUDES := src/rstore/src
+LOCAL_INCLUDES := \
+	src/rstore/src \
+	src/rstore/src/blake2 \
+
 LOCAL_SRC := \
+	src/rstore/src/blake2/blake2b-ref.c \
 	src/rstore/src/rstore.cpp \
 	src/rstore/src/rollsum.c \
 
