@@ -47,6 +47,11 @@ int write_chunk(uint8_t* buf, int buf_len, char* crypto_hash_hex)
     std::string dir;
     std::string filename;
     std::string fullpath;
+
+    if(buf_len == 0) {
+        return 0;
+    }
+
     dir = "data";
     err = mkdir(dir.c_str(), 0755);
     dir += "/";
