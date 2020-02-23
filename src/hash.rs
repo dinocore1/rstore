@@ -1,9 +1,9 @@
 
-trait HashCode {
+pub trait HashCode {
   fn asInt(&self) -> u32;
 }
 
-trait HashFunction<T: HashCode> {
+pub trait HashFunction<T: HashCode> {
   fn reset(&mut self);
   fn update(&mut self, data: &[u8]);
   fn finalize(&mut self) -> T;
